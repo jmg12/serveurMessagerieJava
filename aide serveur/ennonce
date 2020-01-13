@@ -1,0 +1,26 @@
+Faire un serveur HTTP:
+
+1 - Avec TELNET, connectez-vous sur votre serveur
+2 - Créer une page index.html (mettre un pseudo code html dedans comme <h1>toto</h1>) et demander avec le telnet : "GET /index.html HTTP/1.0 + ligne vide"
+
+GET /index.html HTTP/1.0
+REPONSE Server
+Si page existe:
+	HTTP/1.0 200 OK
+	Content-type: TYPE MIME
+	Content-lenght:
+	ligne vide
+	fichier html
+
+Si page non existe:
+	HTTP/1.0 404 Not found
+	Content-type: TYPE MIME
+	Content-lenght:
+	ligne vide
+	fichier html not-found
+
+Renvoyer le bon status HTTP avec le bon header et le bon format
+3 - Faire la même chose mais en HTTP/1.1
+	Ajouter donc le HTTP/1.1 400 BAD REQUEST
+4 - Test avec un navigateur HTTP
+5 - GET : toto.pdf toto.png/jpeg
