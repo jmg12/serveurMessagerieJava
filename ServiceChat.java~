@@ -7,25 +7,66 @@ import java.lang.*;
 public class ServiceChat extends Thread {
 
 	Socket socket;
-	final static int NBUSERSMAX = 2;
+	final static int NBUSERSMAX = 3;
 	BufferedReader entree = null;
 	PrintStream output = null;
 	static PrintStream[] outputs = new PrintStream[NBUSERSMAX];
 	static int nbUsers = 0;
 	String msg = "";
+	//static String[] logins = null;
+	static ArrayList<String> logins = new ArrayList<>();
 
 	public ServiceChat ( Socket socket ) {
 		this.socket = socket;
 		this.start();
 	}
 
+	public String choixLogin() {
+		try {
+			output.println("Bienvenue au serveur de messagerie\n\rVeuillez entrer votre login :");
+			System.out.println(logins);
+			String ulogin = entree.readLine();
+			output.println("Votre nouveau login est : "+ ulogin);
+
+			//for (String login: logins ) {
+			for ( int login =-1 ; login < logins.size(); login++ ) {
+				System.out.println("TEST");
+				//if ( logins[login] == ulogin ) {
+				if ( logins.contains(ulogin) ) {
+					output.println("Ce login est déjà pris, veuillez choisir un autre :");
+					ulogin = entree.readLine();
+				} else {
+					System.out.println("TEST2");
+					//logins[login] = ulogin;
+					logins.add(ulogin);
+				}
+
+				/*while (ulogin == login) {
+					output.println("Ce login est déjà pris, veuillez choisir un autre :");
+					ulogin = entree.readLine();
+				}*/	
+			};
+
+			System.out.println(logins);
+			return ulogin;
+
+		} catch ( IOException e ) {
+			System.out.println( "problème dans la lecture du login" );
+			return "";
+		}
+	}
+	
 	public boolean initStreams() {
 		try {
+
 			// On ouvre le tube pour lire le message du client
 			entree = new BufferedReader( new InputStreamReader( socket.getInputStream() ) );
 
 			// Tube pour envoyer un message à un client
 			output = new PrintStream( socket.getOutputStream() );
+
+			// Choix du pseudo
+			choixLogin();
 
 			if (nbUsers == NBUSERSMAX) {
 				output.println("Nombre de connexion maximal atteind");
