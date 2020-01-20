@@ -13,8 +13,8 @@ public class ServiceChat extends Thread {
 	static PrintStream[] outputs = new PrintStream[NBUSERSMAX];
 	static int nbUsers = 0;
 	String msg = "";
-	//static String[] logins = null;
 	static ArrayList<String> logins = new ArrayList<>();
+	int id;
 
 	public ServiceChat ( Socket socket ) {
 		this.socket = socket;
@@ -23,39 +23,53 @@ public class ServiceChat extends Thread {
 
 	public String choixLogin() {
 		try {
-			output.println("Bienvenue au serveur de messagerie\n\rVeuillez entrer votre login :");
-			System.out.println(logins);
+			//output.println("Bienvenue au serveur de messagerie\n\rVeuillez entrer votre login :");
+			output.println("Veuillez entrer votre login :");
 			String ulogin = entree.readLine();
-			output.println("Votre nouveau login est : "+ ulogin);
+			output.println("Votre login est : "+ ulogin);
 
-			//for (String login: logins ) {
-			for ( int login =-1 ; login < logins.size(); login++ ) {
-				System.out.println("TEST");
-				//if ( logins[login] == ulogin ) {
-				if ( logins.contains(ulogin) ) {
+			if ( logins.isEmpty() ) {
+				logins.add(ulogin);
+			} 
+			else {
+				while( logins.contains(ulogin) ) {
 					output.println("Ce login est déjà pris, veuillez choisir un autre :");
 					ulogin = entree.readLine();
-				} else {
-					System.out.println("TEST2");
-					//logins[login] = ulogin;
-					logins.add(ulogin);
 				}
-
-				/*while (ulogin == login) {
-					output.println("Ce login est déjà pris, veuillez choisir un autre :");
-					ulogin = entree.readLine();
-				}*/	
-			};
-
-			System.out.println(logins);
-			return ulogin;
+				logins.add(ulogin);
+			}
+			return ulogin; // to remove it will be void func
 
 		} catch ( IOException e ) {
 			System.out.println( "problème dans la lecture du login" );
-			return "";
+			return ""; // to remove it will be void func
 		}
 	}
 	
+	public void sendMsgAll( String client, String msg ) {
+
+		for (int i=0 ; i < nbUsers ; i++) {
+			if ( id != i ) {
+				outputs[i].println("<" + client + "> "+ msg);
+			}
+		}
+	}
+
+	public void bienvenue( String client ) {
+			for (int i=0 ; i <= nbUsers ; i++) {
+				int Totuser = nbUsers+1;
+
+				if ( id == i ) {
+					output.println("Bienvenue au serveur de messagerie ESIEA :)");
+					output.println("Il y a " + Totuser + " d'utilisateurs connectés dans le serveur.");
+					output.println("Voici la liste : \n" + logins);
+				}
+				else {
+					outputs[i].println("<System> L'utilisateur " + client + " viens de rejoindre le serveur");
+				}
+			}
+	}
+
 	public boolean initStreams() {
 		try {
 
@@ -65,21 +79,27 @@ public class ServiceChat extends Thread {
 			// Tube pour envoyer un message à un client
 			output = new PrintStream( socket.getOutputStream() );
 
-			// Choix du pseudo
-			choixLogin();
-
 			if (nbUsers == NBUSERSMAX) {
 				output.println("Nombre de connexion maximal atteind");
 				socket.close();
 				return false;
 			}
 
+			// Choix du pseudo
+			choixLogin();
+
+			// Creation de l'id par rapport au user actuel
+			id = nbUsers;
+
 			// On ouvre le tube pour communiquer avec tout le monde
-			outputs[nbUsers] = new PrintStream( socket.getOutputStream() );
+			outputs[id] = new PrintStream( socket.getOutputStream() );
+
+			//Annonce de bienvenue
+			bienvenue(logins.get(id));
 
 			//incrémentation des utilisateurs qui se connecte
 			nbUsers++;	
-			
+
 		} catch( IOException e ) {
 			try {
 				socket.close();
@@ -103,9 +123,7 @@ public class ServiceChat extends Thread {
 			}
 
 			// Envoie le message à tous les clients
-			for (int i=0 ; i < nbUsers ; i++) {
-				outputs[i].println(msg);
-			}
+			sendMsgAll(logins.get(id), msg);
 
 		}
 

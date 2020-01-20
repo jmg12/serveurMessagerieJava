@@ -1,0 +1,24 @@
+				//for (String login: logins ) {
+				for ( int login=0; login < logins.size(); login++ ) {
+				//while( login < logins.size() ) {
+					//if ( logins[login] == ulogin ) {
+					
+					while( logins.contains(ulogin) ) {
+						output.println("Ce login est déjà pris, veuillez choisir un autre :");
+						ulogin = entree.readLine();
+					}
+
+					if ( logins.contains(ulogin) ) {
+						System.out.println("TEST");
+					} else {
+						System.out.println("TEST2");
+						//logins[login] = ulogin;
+						logins.add(ulogin);
+						System.out.println(logins);
+					}
+					System.out.println(logins);
+					while (ulogin == login) {
+					  output.println("Ce login est déjà pris, veuillez choisir un autre :");
+					  ulogin = entree.readLine();
+					  }
+				};
