@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.lang.*;
+import java.util.regex.*;
 //import ServiceChat.class;
 
 public class ServiceChat extends Thread {
@@ -99,7 +100,7 @@ public class ServiceChat extends Thread {
 			bienvenue(logins.get(id));
 
 			//incrémentation des utilisateurs qui se connecte
-			nbUsers++;	
+			nbUsers++;
 
 		} catch( IOException e ) {
 			try {
@@ -112,6 +113,15 @@ public class ServiceChat extends Thread {
 		return true;
 	}
 
+	public void sendMsgPriv( String client, int dest, String msg ) {
+
+		for (int i=0 ; i < nbUsers ; i++) {
+			if ( dest == i ) {
+				outputs[dest].println("<" + client + "> "+ msg);
+			}
+		}
+	}
+	
 	public void mainLoop() {
 
 		while( true ) {
@@ -126,6 +136,14 @@ public class ServiceChat extends Thread {
 			// Envoie le message à tous les clients
 			sendMsgAll(logins.get(id), msg);
 
+			// Envoie de message privé
+			String patternSendMsg = "^/sendMsg*";
+			Pattern pattern = Pattern.compile(patternSendMsg); 
+			Matcher matcher = pattern.matcher(msg);
+			boolean matches = matcher.matches();
+			if ( matches ) {
+				sendMsgPriv(logins.get(id), 1 ,msg);
+			}
 		}
 
 	}
