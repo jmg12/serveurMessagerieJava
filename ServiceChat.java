@@ -133,17 +133,23 @@ public class ServiceChat extends Thread {
 				System.out.println(e);
 			}
 
-			// Envoie le message à tous les clients
-			sendMsgAll(logins.get(id), msg);
-
-			// Envoie de message privé
-			String patternSendMsg = "^/sendMsg*";
+			// API regex java match /sendMsg
+			String patternSendMsg = "^/sendMsg.*";
 			Pattern pattern = Pattern.compile(patternSendMsg); 
 			Matcher matcher = pattern.matcher(msg);
 			boolean matches = matcher.matches();
+			//System.out.println(matches);
+
 			if ( matches ) {
+				// Envoie de message privé
+				System.out.println("TESTL!!!");
 				sendMsgPriv(logins.get(id), 1 ,msg);
 			}
+			else {
+				// Envoie le message à tous les clients
+				sendMsgAll(logins.get(id), msg);
+			}
+
 		}
 
 	}
