@@ -133,6 +133,22 @@ public class ServiceChat extends Thread {
 				System.out.println(e);
 			}
 
+			// type de msg
+			System.out.println(msg.getClass().getName());
+			
+			// creation d'un tableau pour le msg reçue
+			char[] msgsend = new char[msg.length()];
+			
+			// rempliçage du tableau msgsend
+			for (int i = 0; i < msg.length(); i++) {
+				msgsend[i] = msg.charAt(i);
+			}
+
+			// afficher le contenue du tableau
+			for (char c : msgsend) {
+				System.out.println(c);
+			}
+
 			// API regex java match /sendMsg
 			String patternSendMsg = "^/sendMsg.*";
 			Pattern pattern = Pattern.compile(patternSendMsg); 
