@@ -113,13 +113,22 @@ public class ServiceChat extends Thread {
 		return true;
 	}
 
-	public void sendMsgPriv( String client, int dest, String msg ) {
-
-		for (int i=0 ; i < nbUsers ; i++) {
-			if ( dest == i ) {
-				outputs[dest].println("<" + client + "> "+ msg);
+	public void sendMsgPriv( String client, String destname, String msg ) {
+		System.out.println(logins.contains(destname));
+		/*if(logins.contains(destname)) {
+			int destID = logins.indexOf(destname);
+			for (int i=0 ; i < nbUsers ; i++) {
+				//System.out.println(i+ "= i");
+				//System.out.println(destID+ " = destID");
+				if ( destID == i ) {
+					outputs[destID].println("<" + client + "> "+ msg);
+				}
 			}
 		}
+		else{
+			output.println("L'utilisateur "+ destname +" n'est pas dans le serveur");
+		}*/
+
 	}
 	
 	public void mainLoop() {
@@ -134,38 +143,31 @@ public class ServiceChat extends Thread {
 			}
 
 			// type de msg
-			System.out.println(msg.getClass().getName());
+			//System.out.println(msg.getClass().getName());
 			
-			// creation d'un tableau pour le msg reçue
-			char[] msgsend = new char[msg.length()];
-			
-			// rempliçage du tableau msgsend
-			for (int i = 0; i < msg.length(); i++) {
-				msgsend[i] = msg.charAt(i);
-			}
 
-			// afficher le contenue du tableau
-			for (char c : msgsend) {
-				System.out.printls(c);
-			}
 
 			// API regex java match /sendMsg
-			String patternSendMsg = "^/sendMsg.*";
-			Pattern pattern = Pattern.compile(patternSendMsg); 
-			Matcher matcher = pattern.matcher(msg);
-			boolean matches = matcher.matches();
-			//System.out.println(matches);
+			//String patternSendMsg = "^/sendMsg.*";
+			//Pattern pattern = Pattern.compile(patternSendMsg); 
+			//Matcher matcher = pattern.matcher(msg);
+			//boolean matches = matcher.matches();
+			
+			//if ( matches ) {
+		
+			// Envoie de message privé
+			String[] msgdivise = msg.split("\\s+",3);
+			System.out.println("TEST ="+msgdivise[2]);
+			if ( msgdivise[0].equals("/sendMsg") && msgdivise[2] != "" ) {
 
-			if ( matches ) {
 				// Envoie de message privé
-				System.out.println("TESTL!!!");
-				sendMsgPriv(logins.get(id), 1 ,msg);
+				//System.out.println("TEST!!!");
+				sendMsgPriv(logins.get(id), msgdivise[1], msgdivise[2]);
 			}
 			else {
 				// Envoie le message à tous les clients
 				sendMsgAll(logins.get(id), msg);
 			}
-
 		}
 
 	}

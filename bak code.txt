@@ -22,3 +22,50 @@
 					  ulogin = entree.readLine();
 					  }
 				};
+
+
+27/01:
+			// type de msg
+			//System.out.println(msg.getClass().getName());
+			
+			// creation d'un tableau pour le msg reçue
+			//char[] msgsend = new char[msg.length()];
+			
+			// rempliçage du tableau msgsend
+			//for (int i = 0; i < msg.length(); i++) {
+			//	msgsend[i] = msg.charAt(i);
+			//}
+			
+			//char[] destName = ;
+
+			// afficher le contenue du tableau
+			//for (char c : msgsend) {
+			//	System.out.println(c);
+			//}
+
+			String[] msgdivise = msg.split("\\s+",3);
+
+			// Envoie de message privé
+			// API regex java match /sendMsg
+			String patternSendMsg = "^/sendMsg.*";
+			Pattern pattern = Pattern.compile(patternSendMsg); 
+			Matcher matcher = pattern.matcher(msg);
+			boolean matches = matcher.matches();
+			//System.out.println(matches);
+
+			//if ( matches ) {
+			if ( msgdivise[0].equals("/sendMsg") ) {
+
+				System.out.println(msgdivise[2]);
+				// Identification du destinataire
+				//String destName = msg.substring(9,13);
+				//System.out.println(destName);
+
+				// Envoie de message privé
+				System.out.println("TESTL!!!");
+				sendMsgPriv(logins.get(id), 1, msgdivise[2]);
+			}
+			else {
+				// Envoie le message à tous les clients
+				sendMsgAll(logins.get(id), msg);
+			}
