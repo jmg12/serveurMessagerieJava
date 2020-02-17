@@ -19,6 +19,7 @@ public class ServiceChat extends Thread {
 	static ArrayList<String> mots2passe = new ArrayList<>();
 	static String [] arrayBD = new String[NBUSERSMAX*2];
 	static HashMap<String,String> bd = new HashMap<String, String>();
+	static HashMap<Integer, Integer> idPort = new HashMap<Integer, Integer>();
 
 	public ServiceChat ( Socket socket ) {
 		this.socket = socket;
@@ -68,18 +69,19 @@ public class ServiceChat extends Thread {
 	}
 	
 	public void bienvenue( String client ) {
-			for (int i=0 ; i <= nbUsers ; i++) {
 
-				int Totuser = nbUsers+1;
-				if ( id == i ) {
-					output.println("Bienvenue au serveur de messagerie ESIEA :)");
-					output.println("Il y a " + Totuser + " d'utilisateurs connectes dans le serveur.");
-					output.println("Voici la liste : \n" + logins);
-				}
-				else {
-					outputs[i].println("<System> L'utilisateur " + client + " viens de rejoindre le serveur");
-				}
+		for (int i=0 ; i <= nbUsers ; i++) {
+
+			int Totuser = nbUsers+1;
+			if ( id == i ) {
+				output.println("Bienvenue au serveur de messagerie ESIEA :)");
+				output.println("Il y a " + Totuser + " d'utilisateurs connectes dans le serveur.");
+				output.println("Voici la liste : \n" + logins);
 			}
+			else {
+				outputs[i].println("<System> L'utilisateur " + client + " viens de rejoindre le serveur");
+			}
+		}
 	}
 
 	public void sendMsgPriv( String client, String destname, String msg ) {
@@ -101,7 +103,7 @@ public class ServiceChat extends Thread {
 	}
 	
 	public void sendMsgAll( String client, String msg ) {
-
+		System.out.println("JUST A TEST!!");
 		for (int i=0 ; i < nbUsers ; i++) {
 			if ( id != i ) {
 				outputs[i].println("<" + client + "> "+ msg);
@@ -118,8 +120,28 @@ public class ServiceChat extends Thread {
 		}*/
 	}
 
-	public void deconnexionLogin() {
-		
+	public void deconnexionLogin(String myLogin) {
+		int myID = logins.indexOf(myLogin);
+		System.out.println("Going to remove : "+logins.get(myID));
+		//System.out.println("Avant : "+logins);
+		//System.out.println("Avant : "+mots2passe);
+		logins.remove(logins.get(myID));
+		mots2passe.remove(mots2passe.get(myID));
+		//System.out.println("Apres : "+logins);
+		//System.out.println("Apres : "+mots2passe);
+		nbUsers--;
+		System.out.println("Nb USER : " + nbUsers);
+		System.out.println("My BD : "+bd);
+		try {
+			while(socket.isBound()) {
+				entree.close();
+				output.close();
+				socket.close();
+			}
+		} catch ( IOException e ) {
+			System.out.println( "probleme dans la deconnexion" );
+		}
+		/*
 		int myID = id;
 		for (int i=0 ; i < nbUsers ; i++) {
 			if ( myID == i ) {
@@ -133,12 +155,13 @@ public class ServiceChat extends Thread {
 				nbUsers--;
 				try {
 					socket.close();
+					break;
 
 				} catch ( IOException e ) {
 					System.out.println( "probleme dans la deconnexion" );
 				}
 			}
-		}
+		}*/
 	}
 
 	public boolean initStreams() {
@@ -159,6 +182,8 @@ public class ServiceChat extends Thread {
 
 			// Creation de l'id par rapport au user actuel
 			id = nbUsers;
+			//System.out.println("ID egal : " + socket.getPort());
+			//idPort.put(id,socket.getPort());
 
 			// On ouvre le tube pour communiquer avec tout le monde
 			outputs[id] = new PrintStream( socket.getOutputStream() );
@@ -166,6 +191,7 @@ public class ServiceChat extends Thread {
 		} catch( IOException e ) {
 			try {
 				socket.close();
+				socket.isClosed();
 			} catch( IOException e2 ) {
 				System.out.println( "probleme en fermant socket" );
 			}
@@ -185,7 +211,6 @@ public class ServiceChat extends Thread {
 		// Ajout login et mot de passe dans la base de donnee
 		addToBD(loginToBD, mdpToBD);
 
-		System.out.println(bd);
 		/*
 		   for (int i =0; i < arrayBD.length; i++) {
 		   System.out.println("case numero " +i+ " valeur :" +arrayBD[i]);
@@ -220,6 +245,9 @@ public class ServiceChat extends Thread {
 			// split des commandes
 			String[] cmdPattern = msg.split("\\s+",3);
 
+			// lister tous les logins connectes
+			String[] listLogins = msg.split("\\s+",2);
+
 			if ( cmdPattern[0].equals("/sendMsg") && cmdPattern[2] != null ) {
 
 				// Envoie de message prive
@@ -228,20 +256,18 @@ public class ServiceChat extends Thread {
 			else if ( cmdPattern[0].equals("/exit") ) {
 
 				// Deconnexion de l'utilisateur
-				deconnexionLogin();
+				deconnexionLogin(logins.get(id));
 
+			}
+			else if ( listLogins[0].equals("/list") ) {
+				// Afficher tous les logins
+				output.println("Voici la liste : \n" + logins);
 			}
 			else {
 				// Envoie le message a tous les clients
 				sendMsgAll(logins.get(id), msg);
 			}
 
-			// lister tous les logins connectes
-			String[] listLogins = msg.split("\\s+",2);
-			if ( listLogins[0].equals("/list") ) {
-				// Afficher tous les logins
-				output.println("Voici la liste : \n" + logins);
-			}
 		}
 
 	}
