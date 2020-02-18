@@ -238,14 +238,21 @@ public class ServiceChat extends Thread {
 
 		// Choix du pseudo
 		String loginToBD = choixLogin();
+		String mdpToBD = "";
 
 		// Choix du mot de passe
+		//System.out.println("login index : " + logins.indexOf(loginToBD) );
+		//if (logins.indexOf(loginToBD) != ) {
 		if ( flagCheckMdp == false ) {
-			String mdpToBD = choixMotDePasse();
+			mdpToBD = choixMotDePasse();
+			flagCheckMdp = false;
 			// Ajout login et mot de passe dans la base de donnee
 			addToBD(loginToBD, mdpToBD);
 		}
 		flagCheckMdp = false;
+		System.out.println("mdp tmp bd " + mots2passe );
+		System.out.println("login tmp bd " + logins );
+		System.out.println("BD " + bd );
 
 		/*
 		   for (int i =0; i < arrayBD.length; i++) {
@@ -301,14 +308,7 @@ public class ServiceChat extends Thread {
 			}
 			else {
 				// Envoie le message a tous les clients
-				//System.out.println("JE SENS TO ALL");
-				/*try{
-					Thread.sleep(1);
-				}
-				catch (Exception e) 
-				{ 
-					System.out.println("Thread  interrupted."); 
-				} */
+				System.out.println("THIS WORKS");
 				sendMsgAll(logins.get(id), msg);
 			}
 

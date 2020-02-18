@@ -37,9 +37,9 @@ public class ServiceChat extends Thread {
 			if ( logins.isEmpty() ) {
 				logins.add(ulogin);
 			} 
-			// CHECK POUR LA RECONNECTION
+			// effectue un check du mot de passe a la reconnexion
 			else if ( bd.containsKey(ulogin) ) { 
-				output.println("Ce login est present dans la base :)");
+				output.println("Vous avez deja un compte :) ");
 				checkPassword();
 				logins.add(ulogin);
 			}
@@ -59,20 +59,34 @@ public class ServiceChat extends Thread {
 	}
 
 	public boolean checkPassword () {
+		int c = 0;
 		try {
-			output.println("Veuillez entrer votre mot de passe :");
-			String umot2passe = entree.readLine();
+			while ( c < 3) {
+				output.println("Veuillez entrer votre mot de passe :");
+				String umot2passe = entree.readLine();
 
-			if ( bd.containsValue(umot2passe) ) {
-				mots2passe.add(umot2passe);
-				flagCheckMdp = true;
-				return true;
+				// check si mot de passe existe dans la bd
+				if ( bd.containsValue(umot2passe) ) {
+					// ajout du mdp saissie dans la base de mdp local 
+					mots2passe.add(umot2passe);
+					// Set flag check mdp a true
+					flagCheckMdp = true;
+					return true;
+				}
+				c++;
+			}
+			output.println("Nombre de tentative maximal atteind");
+
+			while(socket.isBound()) {
+				entree.close();
+				output.close();
+				socket.close();
 			}
 			return false;
 
 		} catch ( IOException e ) {
-			System.out.println( "probleme dans la lecture du mot de passe" );
-			return false; // to remove it will be void func
+			System.out.println( "probleme lors de la verification du mot de passe" );
+			return false;
 		}
 	}
 
@@ -114,7 +128,6 @@ public class ServiceChat extends Thread {
 				//System.out.println(destID+ " = destID");
 				if ( destID == i ) {
 					outputs[destID].println("<" + client + "> "+ msg);
-					break;
 				}
 			}
 		}
@@ -225,22 +238,14 @@ public class ServiceChat extends Thread {
 
 		// Choix du pseudo
 		String loginToBD = choixLogin();
-		String mdpToBD = "";
-		// Choix du mot de passe
-		System.out.println("login index : " + logins.indexOf(loginToBD) );
 
-		//if (logins.indexOf(loginToBD) != ) {
+		// Choix du mot de passe
 		if ( flagCheckMdp == false ) {
-			mdpToBD = choixMotDePasse();
-			flagCheckMdp = false;
+			String mdpToBD = choixMotDePasse();
+			// Ajout login et mot de passe dans la base de donnee
+			addToBD(loginToBD, mdpToBD);
 		}
 		flagCheckMdp = false;
-		System.out.println("mdp tmp bd " + mots2passe );
-		System.out.println("login tmp bd " + logins );
-		System.out.println("BD " + bd );
-
-		// Ajout login et mot de passe dans la base de donnee
-		addToBD(loginToBD, mdpToBD);
 
 		/*
 		   for (int i =0; i < arrayBD.length; i++) {
@@ -296,7 +301,13 @@ public class ServiceChat extends Thread {
 			}
 			else {
 				// Envoie le message a tous les clients
-				System.out.println("THIS WORKS");
+				/*try{
+					Thread.sleep(1);
+				}
+				catch (Exception e) 
+				{ 
+					System.out.println("Thread  interrupted."); 
+				} */
 				sendMsgAll(logins.get(id), msg);
 			}
 
