@@ -21,6 +21,7 @@ public class ServiceChat extends Thread {
 	static HashMap<String,String> bd = new HashMap<String, String>();
 	static HashMap<Integer, Integer> idPort = new HashMap<Integer, Integer>();
 	boolean flagCheckMdp = false;
+	int indexDecoId;
 
 	public ServiceChat ( Socket socket ) {
 		this.socket = socket;
@@ -156,6 +157,7 @@ public class ServiceChat extends Thread {
 
 	public void deconnexionLogin(String myLogin) {
 		int myID = logins.indexOf(myLogin);
+		indexDecoId = myID;
 		System.out.println("Going to remove : "+logins.get(myID));
 		//System.out.println("Avant : "+logins);
 		//System.out.println("Avant : "+mots2passe);
@@ -175,27 +177,6 @@ public class ServiceChat extends Thread {
 		} catch ( IOException e ) {
 			System.out.println( "probleme dans la deconnexion" );
 		}
-		/*
-		int myID = id;
-		for (int i=0 ; i < nbUsers ; i++) {
-			if ( myID == i ) {
-				System.out.println("Avant : "+logins);
-				System.out.println("Avant : "+mots2passe);
-				logins.remove(logins.get(myID));
-				mots2passe.remove(mots2passe.get(myID));
-				System.out.println("Apres : "+logins);
-				System.out.println("Apres : "+mots2passe);
-				output.println("Vous etes deconnecte");
-				nbUsers--;
-				try {
-					socket.close();
-					break;
-
-				} catch ( IOException e ) {
-					System.out.println( "probleme dans la deconnexion" );
-				}
-			}
-		}*/
 	}
 
 	public boolean initStreams() {
