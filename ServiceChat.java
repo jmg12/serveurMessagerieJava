@@ -21,7 +21,8 @@ public class ServiceChat extends Thread {
 	static HashMap<String,String> bd = new HashMap<String, String>();
 	static HashMap<Integer, Integer> idPort = new HashMap<Integer, Integer>();
 	boolean flagCheckMdp = false;
-	int indexDecoId;
+	static int indexDecoId;
+	static boolean flagDeco = false;
 
 	public ServiceChat ( Socket socket ) {
 		this.socket = socket;
@@ -45,6 +46,7 @@ public class ServiceChat extends Thread {
 				logins.add(ulogin);
 			}
 			else {
+				// TO CHANGE WITH : while (bd.contains(ulogins) ) to test
 				while( logins.contains(ulogin) ) {
 					output.println("Ce login est déjà pris, veuillez choisir un autre :");
 					ulogin = entree.readLine();
@@ -156,8 +158,11 @@ public class ServiceChat extends Thread {
 	}
 
 	public void deconnexionLogin(String myLogin) {
+		// flag decoconnexion; après déplacer sous le while
+		flagDeco = true;
 		int myID = logins.indexOf(myLogin);
 		indexDecoId = myID;
+		System.out.println("Index Deco ID : "+ indexDecoId);
 		System.out.println("Going to remove : "+logins.get(myID));
 		//System.out.println("Avant : "+logins);
 		//System.out.println("Avant : "+mots2passe);
@@ -168,12 +173,19 @@ public class ServiceChat extends Thread {
 		nbUsers--;
 		System.out.println("Nb USER : " + nbUsers);
 		System.out.println("My BD : "+bd);
+
+
+		boolean isAlive = true; // après déplacer en haut
 		try {
-			while(socket.isBound()) {
+			//while(socket.isBound()) {
+			while(isAlive) {
 				entree.close();
 				output.close();
 				socket.close();
+				isAlive = true; // tmp set to true; finir deco id
 			}
+			System.out.println("DON'T PRINT");
+			System.out.println("OUT WHILE!!!");
 		} catch ( IOException e ) {
 			System.out.println( "probleme dans la deconnexion" );
 		}
@@ -195,8 +207,14 @@ public class ServiceChat extends Thread {
 				return false;
 			}
 
-			// Creation de l'id par rapport au user actuel
-			id = nbUsers;
+			if (flagDeco == true) {
+				System.out.println("Index Deco ID : "+ indexDecoId);
+				System.out.println( "ajout id apres deco" );
+				id = indexDecoId;
+			} else {
+				System.out.println( "ajout id normal" );
+				id = nbUsers;
+			}
 			//System.out.println("ID egal : " + socket.getPort());
 			//idPort.put(id,socket.getPort());
 
@@ -215,19 +233,81 @@ public class ServiceChat extends Thread {
 		return true;
 	}
 
-	public boolean connection() {
+	public String choixLoginDecoId(int indexId) {
+		try {
+			//output.println("Bienvenue au serveur de messagerie\n\rVeuillez entrer votre login :");
+			output.println("Veuillez entrer votre login :");
+			String ulogin = entree.readLine();
+			output.println("Votre login est : "+ ulogin);
 
-		// Choix du pseudo
-		String loginToBD = choixLogin();
+			if ( logins.isEmpty() ) {
+				// TO SET with indexId
+				logins.add(indexId, ulogin);
+			} 
+			// effectue un check du mot de passe a la reconnexion
+			else if ( bd.containsKey(ulogin) ) { 
+				output.println("Vous avez deja un compte :) ");
+				checkPassword();
+				logins.add(indexId, ulogin);
+			}
+			else {
+				// TO CHANGE WITH : while (bd.contains(ulogins) ) to test
+				while( logins.contains(ulogin) ) {
+					output.println("Ce login est déjà pris, veuillez choisir un autre :");
+					ulogin = entree.readLine();
+				}
 
-		// Choix du mot de passe
-		if ( flagCheckMdp == false ) {
-			String mdpToBD = choixMotDePasse();
-			// Ajout login et mot de passe dans la base de donnee
-			addToBD(loginToBD, mdpToBD);
+				logins.add(indexId, ulogin);
+			}
+			return ulogin; // to remove it will be void func
+
+		} catch ( IOException e ) {
+			System.out.println( "probleme dans la lecture du login" );
+			return ""; // to remove it will be void func
 		}
-		flagCheckMdp = false;
+	}
+	
+	/*public String choixMotDePasseDecoId(int indexId) {
 
+	}*/
+
+	public boolean connection() {
+		if (flagDeco == true) {
+			// DO
+			// Placer le nouvel arrivant dans l'id indexDecoId
+			// Pour mdp et login
+			// Choix du pseudo
+			// Creer nouvel method login pour placer dans l'id indexDecoId
+			
+			//System.out.println("Je passe par flag deco");
+
+			String loginToBD = choixLoginDecoId(indexDecoId);
+
+			// Choix du mot de passe
+			if ( flagCheckMdp == false ) {
+				// Creer nouvel method mdp pour placer dans l'id indexDecoId 
+				//String mdpToBD = choixMotDePasseDecoId(indexDecoId); // décommente dans la version final et enlever en-dessous
+				String mdpToBD = choixMotDePasse();
+				// Ajout login et mot de passe dans la base de donnee
+				addToBD(loginToBD, mdpToBD);
+			}
+			flagCheckMdp = false;
+			flagDeco = false;
+		} else { 
+
+			//System.out.println("Connexion normal");
+
+			// Choix du pseudo
+			String loginToBD = choixLogin();
+
+			// Choix du mot de passe
+			if ( flagCheckMdp == false ) {
+				String mdpToBD = choixMotDePasse();
+				// Ajout login et mot de passe dans la base de donnee
+				addToBD(loginToBD, mdpToBD);
+			}
+			flagCheckMdp = false;
+		}
 		/*
 		   for (int i =0; i < arrayBD.length; i++) {
 		   System.out.println("case numero " +i+ " valeur :" +arrayBD[i]);
