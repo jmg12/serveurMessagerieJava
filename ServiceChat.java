@@ -17,7 +17,6 @@ public class ServiceChat extends Thread {
 	static ArrayList<String> logins = new ArrayList<>();
 	int id;
 	static ArrayList<String> mots2passe = new ArrayList<>();
-	static String [] arrayBD = new String[NBUSERSMAX*2];
 	static HashMap<String,String> bd = new HashMap<String, String>();
 	static HashMap<Integer, Integer> idPort = new HashMap<Integer, Integer>();
 	boolean flagCheckMdp = false;
@@ -41,16 +40,20 @@ public class ServiceChat extends Thread {
 			} 
 			// effectue un check du mot de passe a la reconnexion
 			else if ( bd.containsKey(ulogin) ) { 
+				// Si le logins est déjà connecté
+				if (logins.contains(ulogin) == true) {
+					while( logins.contains(ulogin) ) {
+						output.println("Ce login est deja existant et connecte, veuillez choisir un autre login :");
+						ulogin = entree.readLine();
+					}
+					logins.add(ulogin);
+					return ulogin; // to remove it will be void func
+				}
 				output.println("Vous avez deja un compte :) ");
 				checkPassword();
 				logins.add(ulogin);
 			}
 			else {
-				// TO CHANGE WITH : while (bd.contains(ulogins) ) to test
-				while( logins.contains(ulogin) ) {
-					output.println("Ce login est déjà pris, veuillez choisir un autre :");
-					ulogin = entree.readLine();
-				}
 				logins.add(ulogin);
 			}
 			return ulogin; // to remove it will be void func
@@ -58,6 +61,44 @@ public class ServiceChat extends Thread {
 		} catch ( IOException e ) {
 			System.out.println( "probleme dans la lecture du login" );
 			return ""; // to remove it will be void func
+		}
+	}
+
+	public String choixLoginDecoId(int indexId) {
+		try {
+			//output.println("Bienvenue au serveur de messagerie\n\rVeuillez entrer votre login :");
+			output.println("Veuillez entrer votre login :");
+			String ulogin = entree.readLine();
+			output.println("Votre login est : "+ ulogin);
+
+			if ( logins.isEmpty() ) {
+				//logins.add(indexId, ulogin);
+				logins.set(indexId, ulogin);
+			} 
+			// effectue un check du mot de passe a la reconnexion
+			else if ( bd.containsKey(ulogin) ) { 
+				// Si le logins est déjà connecté
+				if (logins.contains(ulogin) == true) {
+					while( logins.contains(ulogin) ) {
+						output.println("Ce login est deja existant et connecte, veuillez choisir un autre login :");
+						ulogin = entree.readLine();
+					}
+					logins.set(indexId, ulogin);
+					return ulogin; // to remove it will be void func
+				}
+				output.println("Vous avez deja un compte :) ");
+				checkPassword();
+				//logins.add(indexId, ulogin);
+				logins.set(indexId, ulogin);
+			}
+			else {
+				logins.set(indexId, ulogin);
+			}
+			return ulogin; // to remove if void func
+
+		} catch ( IOException e ) {
+			System.out.println( "probleme dans la lecture du login" );
+			return ""; // to remove if void func
 		}
 	}
 
@@ -106,6 +147,20 @@ public class ServiceChat extends Thread {
 		}
 	}
 	
+	public String choixMotDePasseDecoId(int indexId) {
+		try {
+			output.println("Veuillez entrer votre nouveau mot de passe :");
+			String umot2passe = entree.readLine();
+			//mots2passe.add(indexId, umot2passe);
+			mots2passe.set(indexId, umot2passe);
+			return umot2passe;
+
+		} catch ( IOException e ) {
+			System.out.println( "probleme dans la lecture du mot de passe" );
+			return ""; // to remove if void func
+		}
+	}
+	
 	public void bienvenue( String client ) {
 
 		for (int i=0 ; i <= nbUsers ; i++) {
@@ -123,12 +178,12 @@ public class ServiceChat extends Thread {
 	}
 
 	public void sendMsgPriv( String client, String destname, String msg ) {
-		//System.out.println(logins.contains(destname));
+		//System.out.println(logins.contains(destname)); // DEBUG
 		if(logins.contains(destname)) {
 			int destID = logins.indexOf(destname);
 			for (int i=0 ; i < nbUsers ; i++) {
-				//System.out.println(i+ "= i");
-				//System.out.println(destID+ " = destID");
+				//System.out.println(i+ "= i"); // DEBUG
+				//System.out.println(destID+ " = destID"); // DEBUG
 				if ( destID == i ) {
 					outputs[destID].println("<" + client + "> "+ msg);
 				}
@@ -150,11 +205,6 @@ public class ServiceChat extends Thread {
 
 	public void addToBD(String login, String mdp) {
 		bd.put(login,mdp);
-		/*
-		for ( int i =0 ; i < id ; i++ ) {
-			arrayBD[i] = loginToBD;
-			arrayBD[i+1] = mdpToBD;
-		}*/
 	}
 
 	public void deconnexionLogin(String myLogin) {
@@ -162,25 +212,27 @@ public class ServiceChat extends Thread {
 		flagDeco = true;
 		int myID = logins.indexOf(myLogin);
 		indexDecoId = myID;
-		System.out.println("Index Deco ID : "+ indexDecoId);
-		System.out.println("Going to remove : "+logins.get(myID));
-		//System.out.println("Avant : "+logins);
-		//System.out.println("Avant : "+mots2passe);
+		System.out.println("Index Deco ID : "+ indexDecoId); // DEBUG
+		//System.out.println("Going to remove : "+logins.get(myID)); // DEBUG
+		//System.out.println("BD LOCAL logins Avant : "+logins); // DEBUG
+		//System.out.println("BD LOCAL mdp Avant : "+mots2passe); // DEBUG
 		
+		// Afin de liberer un place dans logins, remplacement du user
 		logins.set(myID, "");
-		//logins.add(indexId, ulogin);
 		mots2passe.set(myID, "");
 
 		//logins.remove(logins.get(myID));
 		//mots2passe.remove(mots2passe.get(myID));
 		
-		//System.out.println("Apres : "+logins);
-		//System.out.println("Apres : "+mots2passe);
+		// Decrementer le nombre d'utilisateur
 		nbUsers--;
-		System.out.println("Nb USER : " + nbUsers);
-		System.out.println("My BD : "+bd);
-		System.out.println("BD LOCAL logins : " + logins);
-		System.out.println("BD LOCAL mdp : " + mots2passe);
+		
+		//System.out.println("Apres : "+logins); // DEBUG
+		//System.out.println("Apres : "+mots2passe); // DEBUG
+		//System.out.println("Nb USER : " + nbUsers); // DEBUG
+		System.out.println("My BD : "+bd); // DEBUG
+		System.out.println("BD LOCAL logins : " + logins); // DEBUG
+		System.out.println("BD LOCAL mdp : " + mots2passe); // DEBUG
 
 
 		boolean isAlive = true; // après déplacer en haut
@@ -190,7 +242,7 @@ public class ServiceChat extends Thread {
 				entree.close();
 				output.close();
 				socket.close();
-				isAlive = true; // tmp set to true; finir deco id
+				isAlive = false; // tmp set to true; finir deco id
 			}
 			System.out.println("DON'T PRINT");
 			System.out.println("OUT WHILE!!!");
@@ -216,15 +268,13 @@ public class ServiceChat extends Thread {
 			}
 
 			if (flagDeco == true) {
-				System.out.println("Index Deco ID : "+ indexDecoId);
-				System.out.println( "ajout id apres deco" );
+				//System.out.println("Index Deco ID : "+ indexDecoId); // DEBUG
+				//System.out.println( "ajout id apres deco" ); // DEBUG
 				id = indexDecoId;
 			} else {
-				System.out.println( "ajout id normal" );
+				//System.out.println( "ajout id normal" ); // DEBUG
 				id = nbUsers;
 			}
-			//System.out.println("ID egal : " + socket.getPort());
-			//idPort.put(id,socket.getPort());
 
 			// On ouvre le tube pour communiquer avec tout le monde
 			outputs[id] = new PrintStream( socket.getOutputStream() );
@@ -241,73 +291,23 @@ public class ServiceChat extends Thread {
 		return true;
 	}
 
-	public String choixLoginDecoId(int indexId) {
-		try {
-			//output.println("Bienvenue au serveur de messagerie\n\rVeuillez entrer votre login :");
-			output.println("Veuillez entrer votre login :");
-			String ulogin = entree.readLine();
-			output.println("Votre login est : "+ ulogin);
-
-			if ( logins.isEmpty() ) {
-				//logins.add(indexId, ulogin);
-				logins.set(indexId, ulogin);
-			} 
-			// effectue un check du mot de passe a la reconnexion
-			else if ( bd.containsKey(ulogin) ) { 
-				output.println("Vous avez deja un compte :) ");
-				checkPassword();
-				//logins.add(indexId, ulogin);
-				logins.set(indexId, ulogin);
-			}
-			else {
-				// TO CHANGE WITH : while (bd.contains(ulogins) ) to test
-				while( logins.contains(ulogin) ) {
-					output.println("Ce login est déjà pris, veuillez choisir un autre :");
-					ulogin = entree.readLine();
-				}
-				//logins.add(indexId, ulogin);
-				logins.set(indexId, ulogin);
-			}
-			return ulogin; // to remove if void func
-
-		} catch ( IOException e ) {
-			System.out.println( "probleme dans la lecture du login" );
-			return ""; // to remove if void func
-		}
-	}
-	
-	public String choixMotDePasseDecoId(int indexId) {
-		try {
-			output.println("Veuillez entrer votre nouveau mot de passe :");
-			String umot2passe = entree.readLine();
-			//mots2passe.add(indexId, umot2passe);
-			mots2passe.set(indexId, umot2passe);
-			return umot2passe;
-
-		} catch ( IOException e ) {
-			System.out.println( "probleme dans la lecture du mot de passe" );
-			return ""; // to remove if void func
-		}
-	}
-
 	public boolean connection() {
 		if (flagDeco == true) {
-			//System.out.println("Je passe par flag deco");
+			//System.out.println("Je passe par flag deco"); // DEBUG
+
 			// Choix du pseudo
 			String loginToBD = choixLoginDecoId(indexDecoId);
 
 			// Choix du mot de passe
 			if ( flagCheckMdp == false ) {
-				String mdpToBD = choixMotDePasseDecoId(indexDecoId); // décommente dans la version final et enlever en-dessous
-				//String mdpToBD = choixMotDePasse();
+				String mdpToBD = choixMotDePasseDecoId(indexDecoId);
 				// Ajout login et mot de passe dans la base de donnee
 				addToBD(loginToBD, mdpToBD);
 			}
 			flagCheckMdp = false;
 			flagDeco = false;
 		} else { 
-
-			//System.out.println("Connexion normal");
+			//System.out.println("Connexion normal"); // DEBUG
 
 			// Choix du pseudo
 			String loginToBD = choixLogin();
@@ -320,10 +320,6 @@ public class ServiceChat extends Thread {
 			}
 			flagCheckMdp = false;
 		}
-		/*
-		   for (int i =0; i < arrayBD.length; i++) {
-		   System.out.println("case numero " +i+ " valeur :" +arrayBD[i]);
-		   }*/
 
 		//Annonce de bienvenue
 		bienvenue(logins.get(id));
@@ -349,7 +345,7 @@ public class ServiceChat extends Thread {
 			System.out.println(msg);
 
 			// type de msg
-			//System.out.println(msg.getClass().getName());
+			//System.out.println(msg.getClass().getName()); // DEBUG
 			
 			// split des commandes
 			String[] cmdPattern = msg.split("\\s+",3);
@@ -366,14 +362,13 @@ public class ServiceChat extends Thread {
 
 				// Deconnexion de l'utilisateur
 				deconnexionLogin(logins.get(id));
-
 			}
 			else if ( listLogins[0].equals("/list") ) {
+
 				// Afficher tous les logins
 				output.println("Voici la liste : \n" + logins);
 			}
 			else {
-				// Envoie le message a tous les clients
 				/*try{
 					Thread.sleep(1);
 				}
@@ -382,7 +377,9 @@ public class ServiceChat extends Thread {
 					System.out.println("Thread  interrupted."); 
 				} */
 				
-				System.out.println("My ID in msgAll : " + id); 
+				//System.out.println("My ID in msgAll : " + id);  // DEBUG
+
+				// Envoie le message a tous les clients
 				sendMsgAll(logins.get(id), msg);
 			}
 
