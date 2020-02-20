@@ -166,13 +166,21 @@ public class ServiceChat extends Thread {
 		System.out.println("Going to remove : "+logins.get(myID));
 		//System.out.println("Avant : "+logins);
 		//System.out.println("Avant : "+mots2passe);
-		logins.remove(logins.get(myID));
-		mots2passe.remove(mots2passe.get(myID));
+		
+		logins.set(myID, "");
+		//logins.add(indexId, ulogin);
+		mots2passe.set(myID, "");
+
+		//logins.remove(logins.get(myID));
+		//mots2passe.remove(mots2passe.get(myID));
+		
 		//System.out.println("Apres : "+logins);
 		//System.out.println("Apres : "+mots2passe);
 		nbUsers--;
 		System.out.println("Nb USER : " + nbUsers);
 		System.out.println("My BD : "+bd);
+		System.out.println("BD LOCAL logins : " + logins);
+		System.out.println("BD LOCAL mdp : " + mots2passe);
 
 
 		boolean isAlive = true; // après déplacer en haut
@@ -241,14 +249,15 @@ public class ServiceChat extends Thread {
 			output.println("Votre login est : "+ ulogin);
 
 			if ( logins.isEmpty() ) {
-				// TO SET with indexId
-				logins.add(indexId, ulogin);
+				//logins.add(indexId, ulogin);
+				logins.set(indexId, ulogin);
 			} 
 			// effectue un check du mot de passe a la reconnexion
 			else if ( bd.containsKey(ulogin) ) { 
 				output.println("Vous avez deja un compte :) ");
 				checkPassword();
-				logins.add(indexId, ulogin);
+				//logins.add(indexId, ulogin);
+				logins.set(indexId, ulogin);
 			}
 			else {
 				// TO CHANGE WITH : while (bd.contains(ulogins) ) to test
@@ -256,8 +265,8 @@ public class ServiceChat extends Thread {
 					output.println("Ce login est déjà pris, veuillez choisir un autre :");
 					ulogin = entree.readLine();
 				}
-
-				logins.add(indexId, ulogin);
+				//logins.add(indexId, ulogin);
+				logins.set(indexId, ulogin);
 			}
 			return ulogin; // to remove if void func
 
@@ -271,7 +280,8 @@ public class ServiceChat extends Thread {
 		try {
 			output.println("Veuillez entrer votre nouveau mot de passe :");
 			String umot2passe = entree.readLine();
-			mots2passe.add(indexId, umot2passe);
+			//mots2passe.add(indexId, umot2passe);
+			mots2passe.set(indexId, umot2passe);
 			return umot2passe;
 
 		} catch ( IOException e ) {
@@ -371,6 +381,8 @@ public class ServiceChat extends Thread {
 				{ 
 					System.out.println("Thread  interrupted."); 
 				} */
+				
+				System.out.println("My ID in msgAll : " + id); 
 				sendMsgAll(logins.get(id), msg);
 			}
 
