@@ -259,35 +259,37 @@ public class ServiceChat extends Thread {
 
 				logins.add(indexId, ulogin);
 			}
-			return ulogin; // to remove it will be void func
+			return ulogin; // to remove if void func
 
 		} catch ( IOException e ) {
 			System.out.println( "probleme dans la lecture du login" );
-			return ""; // to remove it will be void func
+			return ""; // to remove if void func
 		}
 	}
 	
-	/*public String choixMotDePasseDecoId(int indexId) {
+	public String choixMotDePasseDecoId(int indexId) {
+		try {
+			output.println("Veuillez entrer votre nouveau mot de passe :");
+			String umot2passe = entree.readLine();
+			mots2passe.add(indexId, umot2passe);
+			return umot2passe;
 
-	}*/
+		} catch ( IOException e ) {
+			System.out.println( "probleme dans la lecture du mot de passe" );
+			return ""; // to remove if void func
+		}
+	}
 
 	public boolean connection() {
 		if (flagDeco == true) {
-			// DO
-			// Placer le nouvel arrivant dans l'id indexDecoId
-			// Pour mdp et login
-			// Choix du pseudo
-			// Creer nouvel method login pour placer dans l'id indexDecoId
-			
 			//System.out.println("Je passe par flag deco");
-
+			// Choix du pseudo
 			String loginToBD = choixLoginDecoId(indexDecoId);
 
 			// Choix du mot de passe
 			if ( flagCheckMdp == false ) {
-				// Creer nouvel method mdp pour placer dans l'id indexDecoId 
-				//String mdpToBD = choixMotDePasseDecoId(indexDecoId); // décommente dans la version final et enlever en-dessous
-				String mdpToBD = choixMotDePasse();
+				String mdpToBD = choixMotDePasseDecoId(indexDecoId); // décommente dans la version final et enlever en-dessous
+				//String mdpToBD = choixMotDePasse();
 				// Ajout login et mot de passe dans la base de donnee
 				addToBD(loginToBD, mdpToBD);
 			}
