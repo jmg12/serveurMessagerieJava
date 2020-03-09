@@ -39,10 +39,7 @@ public class ServiceChat extends Thread {
 			if ( logins.isEmpty() ) {
 				logins.add(ulogin);
 			} 
-			// effectue un check du mot de passe a la reconnexion
 			else if ( bd.containsKey(ulogin) ) { 
-																// THIS ELSE IF TO BE REMOVE !!
-				System.out.println("J'EXISTE!!!");
 				// Si le logins est déjà connecté
 				if (logins.contains(ulogin) == true) {
 					while( logins.contains(ulogin) ) {
@@ -52,9 +49,6 @@ public class ServiceChat extends Thread {
 					logins.add(ulogin);
 					return ulogin; // to remove it will be void func
 				}
-				output.println("Vous avez deja un compte :) ");
-				checkPassword(ulogin);
-				logins.add(ulogin);
 			}
 			else {
 				logins.add(ulogin);
@@ -75,7 +69,6 @@ public class ServiceChat extends Thread {
 			output.println("Votre login est : "+ ulogin);
 
 			if ( logins.isEmpty() ) {
-				//logins.add(indexId, ulogin);
 				logins.set(indexId, ulogin);
 			} 
 			// effectue un check du mot de passe a la reconnexion
@@ -90,8 +83,8 @@ public class ServiceChat extends Thread {
 					return ulogin; // to remove it will be void func
 				}
 				output.println("Vous avez deja un compte :) ");
-				checkPassword(ulogin);
-				//logins.add(indexId, ulogin);
+				checkPassword(ulogin, indexId);
+
 				logins.set(indexId, ulogin);
 			}
 			else {
@@ -105,7 +98,8 @@ public class ServiceChat extends Thread {
 		}
 	}
 
-	public boolean checkPassword (String login) { // Faire un autre checkPwd pour deco, voir si besoin d'un check lors du co normal ??
+	public boolean checkPassword (String login, int indexId) { 
+		// Faire un autre checkPwd pour deco, voir si besoin d'un check lors du co normal ??
 		int c = 0;
 		try {
 			while ( c < 3) {
@@ -115,9 +109,9 @@ public class ServiceChat extends Thread {
 				// check si mot de passe correspond au login
 				String bdmot2passe = bd.get(login);
 				if( bdmot2passe.equals(umot2passe)) {
-					// ajout du mdp saissie dans la base de mdp local 
-					System.out.println("Va add mdp!!!");
-					mots2passe.add(umot2passe);
+					// Met à jour le mdp saissie dans la base de mdp local 
+					mots2passe.set(indexId, umot2passe);
+
 					// Set flag check mdp a true
 					flagCheckMdp = true;
 					return true;
@@ -220,12 +214,12 @@ public class ServiceChat extends Thread {
 		flagDeco = true;
 		int myID = logins.indexOf(myLogin);
 		indexDecoId = myID;
-		System.out.println("Index Deco ID : "+ indexDecoId); // DEBUG
+		//System.out.println("Index Deco ID : "+ indexDecoId); // DEBUG
 		//System.out.println("Going to remove : "+logins.get(myID)); // DEBUG
 		//System.out.println("BD LOCAL logins Avant : "+logins); // DEBUG
 		//System.out.println("BD LOCAL mdp Avant : "+mots2passe); // DEBUG
 		
-		// Afin de liberer un place dans logins, remplacement du user
+		// Afin de liberer une place dans logins, remplacement du user:mdp par ""
 		logins.set(myID, "");
 		mots2passe.set(myID, "");
 
@@ -238,9 +232,10 @@ public class ServiceChat extends Thread {
 		//System.out.println("Apres : "+logins); // DEBUG
 		//System.out.println("Apres : "+mots2passe); // DEBUG
 		//System.out.println("Nb USER : " + nbUsers); // DEBUG
-		System.out.println("My BD : "+bd); // DEBUG
-		System.out.println("BD LOCAL logins : " + logins); // DEBUG
-		System.out.println("BD LOCAL mdp : " + mots2passe); // DEBUG
+		
+		//System.out.println("My BD : "+bd); // DEBUG
+		//System.out.println("BD LOCAL logins : " + logins); // DEBUG
+		//System.out.println("BD LOCAL mdp : " + mots2passe); // DEBUG
 
 		try {
 			while(isAlive) {
