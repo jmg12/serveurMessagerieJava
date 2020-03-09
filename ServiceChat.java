@@ -22,6 +22,7 @@ public class ServiceChat extends Thread {
 	boolean flagCheckMdp = false;
 	static int indexDecoId;
 	static boolean flagDeco = false;
+	boolean isAlive = true; 
 
 	public ServiceChat ( Socket socket ) {
 		this.socket = socket;
@@ -40,17 +41,19 @@ public class ServiceChat extends Thread {
 			} 
 			// effectue un check du mot de passe a la reconnexion
 			else if ( bd.containsKey(ulogin) ) { 
+																// THIS ELSE IF TO BE REMOVE !!
+				System.out.println("J'EXISTE!!!");
 				// Si le logins est déjà connecté
 				if (logins.contains(ulogin) == true) {
 					while( logins.contains(ulogin) ) {
-						output.println("Ce login est deja existant et connecte, veuillez choisir un autre login :");
+						output.println("Ce login est deja existant et est connecte, veuillez choisir un autre login :");
 						ulogin = entree.readLine();
 					}
 					logins.add(ulogin);
 					return ulogin; // to remove it will be void func
 				}
 				output.println("Vous avez deja un compte :) ");
-				checkPassword();
+				checkPassword(ulogin);
 				logins.add(ulogin);
 			}
 			else {
@@ -80,14 +83,14 @@ public class ServiceChat extends Thread {
 				// Si le logins est déjà connecté
 				if (logins.contains(ulogin) == true) {
 					while( logins.contains(ulogin) ) {
-						output.println("Ce login est deja existant et connecte, veuillez choisir un autre login :");
+						output.println("Ce login est deja existant et est connecte, veuillez choisir un autre login :");
 						ulogin = entree.readLine();
 					}
 					logins.set(indexId, ulogin);
 					return ulogin; // to remove it will be void func
 				}
 				output.println("Vous avez deja un compte :) ");
-				checkPassword();
+				checkPassword(ulogin);
 				//logins.add(indexId, ulogin);
 				logins.set(indexId, ulogin);
 			}
@@ -102,29 +105,34 @@ public class ServiceChat extends Thread {
 		}
 	}
 
-	public boolean checkPassword () {
+	public boolean checkPassword (String login) { // Faire un autre checkPwd pour deco, voir si besoin d'un check lors du co normal ??
 		int c = 0;
 		try {
 			while ( c < 3) {
 				output.println("Veuillez entrer votre mot de passe :");
 				String umot2passe = entree.readLine();
 
-				// check si mot de passe existe dans la bd
-				if ( bd.containsValue(umot2passe) ) {
+				// check si mot de passe correspond au login
+				String bdmot2passe = bd.get(login);
+				if( bdmot2passe.equals(umot2passe)) {
 					// ajout du mdp saissie dans la base de mdp local 
+					System.out.println("Va add mdp!!!");
 					mots2passe.add(umot2passe);
 					// Set flag check mdp a true
 					flagCheckMdp = true;
 					return true;
-				}
+				}	
 				c++;
 			}
 			output.println("Nombre de tentative maximal atteind");
 
 			while(socket.isBound()) {
+				//logins.remove(logins.get(id));
+				//mots2passe.remove(mots2passe.get(id));
 				entree.close();
 				output.close();
 				socket.close();
+				//isAlive = false; 
 			}
 			return false;
 
@@ -234,18 +242,13 @@ public class ServiceChat extends Thread {
 		System.out.println("BD LOCAL logins : " + logins); // DEBUG
 		System.out.println("BD LOCAL mdp : " + mots2passe); // DEBUG
 
-
-		boolean isAlive = true; // après déplacer en haut
 		try {
-			//while(socket.isBound()) {
 			while(isAlive) {
 				entree.close();
 				output.close();
 				socket.close();
-				isAlive = false; // tmp set to true; finir deco id
+				isAlive = false; 
 			}
-			System.out.println("DON'T PRINT");
-			System.out.println("OUT WHILE!!!");
 		} catch ( IOException e ) {
 			System.out.println( "probleme dans la deconnexion" );
 		}
@@ -332,7 +335,8 @@ public class ServiceChat extends Thread {
 	
 	public void mainLoop() {
 
-		while( true ) {
+		//while( true ) {
+		while( isAlive ) {
 
 			try {	
 				// Lire donnée envoyé par le client au serveur
