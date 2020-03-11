@@ -60,12 +60,18 @@ public class ClientChat extends Thread {
 			// inputConsole
 			messageClient = inputConsole.readLine();
 
-			System.out.println( "Test avant" );
+			//System.out.println( "Test avant" );
+
 			// traiter le CTRL-C
-			if( messageClient.equals("^C toto") ) {
+			System.out.println("TEST : "); // DEBUG
+			System.out.println(messageClient); // DEBUG
+			if( messageClient == null ) {
 				System.out.println( "CTRL C detected" );
+				messageClient = "/exit";
+				
 			}
-			System.out.println( "Test apres" );
+
+			//System.out.println( "Test apres" );
 
 			// outputNetwork
 			outputNetwork.print(messageClient + "\n");

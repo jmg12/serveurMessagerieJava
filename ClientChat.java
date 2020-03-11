@@ -60,16 +60,16 @@ public class ClientChat extends Thread {
 			// inputConsole
 			messageClient = inputConsole.readLine();
 
-			System.out.println( "Test avant" );
 			// traiter le CTRL-C
-			if( messageClient.equals("^C") ) {
+			//System.out.println(messageClient); // DEBUG
+			if( messageClient == null ) {
 				System.out.println( "CTRL C detected" );
+				messageClient = "/exit";
+				
 			}
-			System.out.println( "Test apres" );
 
 			// outputNetwork
 			outputNetwork.print(messageClient + "\n");
-			//System.out.println("LISTEN CON TEST!!"); // DEBUG
 			
 			// traiter le /exit
 			if( messageClient.equals("/exit") ) {
@@ -100,7 +100,6 @@ public class ClientChat extends Thread {
 			//outputConsole
 			outputConsole.print(messageServer + "\n");
 			//System.out.println("" + messageServer ); // option2
-			//System.out.println("LISTEN NET TEST!!"); // DEBUG
 		} catch( IOException e) {
 			try {
 				socketClient.close();
