@@ -23,6 +23,7 @@ public class ServiceChat extends Thread {
 	static int indexDecoId;
 	static boolean flagDeco = false;
 	boolean isAlive = true; 
+	static boolean isClientAlise = true;
 
 	public ServiceChat ( Socket socket ) {
 		this.socket = socket;
@@ -233,9 +234,9 @@ public class ServiceChat extends Thread {
 		//System.out.println("Apres : "+mots2passe); // DEBUG
 		//System.out.println("Nb USER : " + nbUsers); // DEBUG
 		
-		//System.out.println("My BD : "+bd); // DEBUG
-		//System.out.println("BD LOCAL logins : " + logins); // DEBUG
-		//System.out.println("BD LOCAL mdp : " + mots2passe); // DEBUG
+		System.out.println("My BD : "+bd); // DEBUG
+		System.out.println("BD LOCAL logins : " + logins); // DEBUG
+		System.out.println("BD LOCAL mdp : " + mots2passe); // DEBUG
 
 		try {
 			while(isAlive) {
@@ -336,9 +337,26 @@ public class ServiceChat extends Thread {
 			try {	
 				// Lire donnée envoyé par le client au serveur
 				msg = entree.readLine();
+				/*  				// TO DO
+				if ( msg.equals("^c") ) {
+					System.out.println("TEST!!! "); // DEBUG
+					isClientAlise = false;
+
+				}*/
 			} catch (IOException e) {
+				System.out.println("ERROR CLOSING MSG MAIN LOOP "); // DEBUG
 				System.out.println(e);
 			}
+
+			/* catch( IOException e ) {
+				try {
+					socket.close();
+					socket.isClosed();
+				} catch (IOException e2) {
+					System.out.println("ERROR CLOSING MSG MAIN LOOP ");
+					System.out.println(e2);
+				}
+			}*/
 
 			// echo sur le serveur
 			System.out.println(msg);
